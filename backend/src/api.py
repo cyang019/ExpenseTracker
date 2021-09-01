@@ -21,6 +21,90 @@ def create_app(test_config=None):
       'Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
+  @app.route('/transactions', method=['GET'])
+  def get_transactions():
+    pass
+
+  @app.route('/transactions/<int:transaction_id>', methods=['GET'])
+  def get_transaction(transaction_id:int):
+    pass
+
+  @app.route('/transactions', methods=['POST'])
+  def post_transaction(transaction_id:int):
+    pass
+
+  @app.route('transactions/<int:transaction_id>', method=['PATCH'])
+  def patch_transaction(transaction_id:int):
+    pass
+
+  @app.route('transactions/<int:transaction_id>', method=['DELETE'])
+  def delete_transaction(transaction_id:int):
+    pass
+
+  @app.route('/cards', method=['GET'])
+  def get_cards():
+    pass
+
+  @app.route('/cards/<int:card_id>', method=['GET'])
+  def get_card(card_id:int):
+    pass
+
+  @app.route('/cards', method=['POST'])
+  def post_card(card_id:int):
+    pass
+
+  @app.route('/cards/<int:card_id>', method=['DELETE'])
+  def delete_card(card_id:int):
+    pass
+
+  @app.route('/categories', method=['GET'])
+  def get_categories():
+    pass
+
+  @app.route('/categories/<int:category_id>', method=['GET'])
+  def get_category(category_id:int):
+    pass
+
+  @app.route('/categories', method=['POST'])
+  def post_category(category_id:int):
+    pass
+
+  @app.route('/categories/<int:category_id>', method=['DELETE'])
+  def delete_category(category_id:int):
+    pass
+
+  @app.route('/currencies', method=['GET'])
+  def get_currencies():
+    pass
+
+  @app.route('/currencies/<int:currency_id>', method=['GET'])
+  def get_currency(currency_id:int):
+    pass
+
+  @app.route('/currencies', method=['POST'])
+  def post_currency(currency_id:int):
+    pass
+
+  @app.route('/currencies/<int:currency_id>', method=['DELETE'])
+  def delete_currency(currency_id:int):
+    pass
+
+  @app.route('/users', method=['GET'])
+  def get_users():
+    pass
+
+  @app.route('/users/<int:user_id>', method=['GET'])
+  def get_user(user_id:int):
+    pass
+
+  @app.route('/users', method=['POST'])
+  def post_user(user_id:int):
+    pass
+
+  @app.route('/users/<int:user_id>', method=['DELETE'])
+  def delete_user(user_id:int):
+    pass
+
   @app.errorhandler(404)
   def not_found(error):
     return jsonify({

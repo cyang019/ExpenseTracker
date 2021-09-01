@@ -32,4 +32,21 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   
   def tearDown(self):
     pass
+
+  def test_get_transactions(self):
+    res = self.client().get('/transactions')
+    data = json.loads(res.data)
+    self.assertEqual(res.status_code, 200)
+    self.assertEqual(data['success'], True)
+
+  def test_post_transaction(self):
+    res = self.client().post(
+      'transactions'
+      json={
+        "amount": 100
+      }
+    )
+    data = json.loads(res.data)
+    self.assertEqual(res.status_code, 200)
+    self.assertEqual(data['success'], True)
   

@@ -69,7 +69,7 @@ class Transaction(db.Model):
     id = Column(Integer, primary_key=True)
     card_id = Column(Integer, db.ForeignKey('card.id'), nullable=False)
     category_id = Column(Integer, db.ForeignKey('category.id'), nullable=False)
-    amount = Column(Float)
+    amount = Column(Integer)    # in cents
     currency_id = Column(Integer, db.ForeignKey('currency.id'), nullable=False)
     time = Column(DateTime)
     description = Column(String)
