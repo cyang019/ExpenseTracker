@@ -1,6 +1,7 @@
 import os
 from sqlalchemy import Column, String, Integer, Float, DateTime
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import ast
 import json
 
@@ -8,6 +9,7 @@ database_name = "expenses"
 database_path = "postgresql://{}/{}".format("localhost:5432", database_name)
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 '''
 setup_db(app)
