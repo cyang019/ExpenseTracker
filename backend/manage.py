@@ -115,7 +115,7 @@ def run_sql(statements):
 def wait_for_logs(cmdline, message):
   logs = subprocess.check_output(cmdline)
   while message not in logs.decode("utf-8"):
-    time.sleep(0.1)
+    time.sleep(1)
     logs = subprocess.check_output(cmdline)
 
 

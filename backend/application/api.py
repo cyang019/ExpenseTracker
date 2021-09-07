@@ -4,8 +4,10 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from application.models import setup_db, db, migrate, User, Card, Category
-
+from application.models import (
+  setup_db, db, migrate,
+  User, Card, Category, Transaction
+)
 
 def create_app(config_name):
   app = Flask(__name__)
@@ -31,11 +33,24 @@ def create_app(config_name):
 
   @app.route('/transactions', methods=['GET'])
   def get_transactions():
-    pass
+    selection = Transaction.query.all()
+    transactions = [s.format() for s in selection]
+    return jsonify({
+      'success': True,
+      'transactions': transactions
+    })
 
   @app.route('/transactions/<int:transaction_id>', methods=['GET'])
   def get_transaction(transaction_id:int):
-    pass
+    selection = Transaction.query.filter(Transaction.id == transaction_id).one_or_none()
+    if selection is None:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'transaction': selection.format()
+    })
+
 
   @app.route('/transactions', methods=['POST'])
   def post_transaction(transaction_id:int):

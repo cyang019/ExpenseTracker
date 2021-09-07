@@ -79,3 +79,15 @@ class Transaction(db.Model):
 
     def __repr__(self):
         return f'<Transaction {self.id} {amount} {time} {receipt_no}>'
+
+    def format(self):
+        return {
+            'id': self.id,
+            'card_id': self.card_id,
+            'category_id': self.category_id,
+            'amount': self.amount,
+            'currency_id': self.currency_id,
+            'time': self.time,
+            'description': self.description,
+            'receipt_no': self.receipt_no
+        }
