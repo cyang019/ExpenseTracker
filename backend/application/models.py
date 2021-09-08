@@ -1,4 +1,5 @@
 import os
+import math
 from sqlalchemy import Column, String, Integer, Float, DateTime
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -76,6 +77,26 @@ class Transaction(db.Model):
     time = Column(DateTime)
     description = Column(String)
     receipt_no = Column(String)
+
+    def __init__(self, card_id, category_id, amount, currency_id, time, description, receipt_no):
+        self.card_id = card_id
+        self.category_id = category_id
+        self.amount = int(amount)   # in cents
+        self.currency_id = currency_id
+        self.time = time
+        self.description = str(description)
+        self.receipt_no = str(receipt_no)
+    
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
     def __repr__(self):
         return f'<Transaction {self.id} {amount} {time} {receipt_no}>'

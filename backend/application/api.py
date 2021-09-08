@@ -1,5 +1,6 @@
 import os
 import sys
+import datetime
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -8,6 +9,9 @@ from application.models import (
   setup_db, db, migrate,
   User, Card, Category, Transaction
 )
+
+
+TIME_FORMAT = "%m/%d/%y %H:%M:%S.%f"
 
 def create_app(config_name):
   app = Flask(__name__)
@@ -53,16 +57,98 @@ def create_app(config_name):
 
 
   @app.route('/transactions', methods=['POST'])
-  def post_transaction(transaction_id:int):
-    pass
+  def post_transaction():
+    body = request.get_json()
+    card_id = body.get('card_id', None)
+    category_id = body.get('category_id', None)
+    amount = body.get('amount', None)
+    currency_id = body.get('currency_id', None)
+    time_str = body.get('time', None)
+    time_obj = None
+    if time_str is not None:
+      time_obj = datetime.datetime.strptime(time_str, TIME_FORMAT)
+    description = body.get('description')
+    receipt_no = body.get('receipt_no')
+    try:
+      if amount is None:
+        raise ValueError(f'Need transaction amount in cents.')
+      transaction = Transaction(
+        card_id=card_id,
+        category_id=category_id,
+        amount=amount,
+        currency_id=currency_id,
+        time=time_obj,
+        description=description,
+        receipt_no=receipt_no
+      )
+      transaction.insert()
+    except Exception as e:
+      error = True
+      print(f'error creating new transaction: {e}')
+      db.session.rollback()
+    finally:
+      db.session.close()
+    if error:
+      abort(422)
+
+    return jsonify({
+      'success': True
+    })
+
 
   @app.route('/transactions/<int:transaction_id>', methods=['PATCH'])
   def patch_transaction(transaction_id:int):
-    pass
+    body = request.get_json()
+    card_id = body.get('card_id', None)
+    category_id = body.get('category_id', None)
+    amount = body.get('amount', None)
+    currency_id = body.get('currency_id', None)
+    time_str = body.get('time', None)
+    time_obj = None
+    if time_str is not None:
+      time_obj = datetime.datetime.strptime(time_str, TIME_FORMAT)
+    description = body.get('description')
+    receipt_no = body.get('receipt_no')
+    try:
+      transaction = Transaction.query().get(transaction_id)
+      if card_id is not None:
+        transaction.card_id = card_id
+      if category_id is not None:
+        transaction.category_id = category_id
+      if amount is not None:
+        transaction.amount = amount
+      if currency_id is not None:
+        transaction.currency_id = currency_id
+      if time_obj is not None:
+        transaction.time = time_obj
+      if description is not None:
+        transaction.description = description
+      if receipt_no is not None:
+        transaction.receipt_no = receipt_no
+      transaction.update()
+    except Exception as e:
+      error = True
+      print(f'error creating new transaction: {e}')
+      db.session.rollback()
+    finally:
+      db.session.close()
+    if error:
+      abort(422)
+    return jsonify({
+      'success': True
+    })
 
   @app.route('/transactions/<int:transaction_id>', methods=['DELETE'])
   def delete_transaction(transaction_id:int):
-    pass
+    transaction = Transaction.query.filter(Transaction.id == transaction_id).one_or_none()
+    if transaction is None:
+      abort(404)
+
+    transaction.delete()
+    return jsonify({
+      'success': True,
+      'deleted': transaction_id
+    })
 
   @app.route('/cards', methods=['GET'])
   def get_cards():
@@ -156,11 +242,11 @@ def create_app(config_name):
 
 
 if __name__ == '__main__':
-  database_name = "postgres"
-  database_path = "postgresql://{}:{}@{}/{}".format(
-    'postgres', 'postgres',
-    'localhost:6432', database_name)
-  app = create_app()
+  # database_name = "postgres"
+  # database_path = "postgresql://{}:{}@{}/{}".format(
+  #   'postgres', 'postgres',
+  #   'localhost:6432', database_name)
+  app = create_app('development')
   # setup_db(app, database_path)
 
   # binds the app to the current context
