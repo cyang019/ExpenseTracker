@@ -40,6 +40,6 @@ class ExpenseTrackerTestCase(unittest.TestCase):
       }
     )
     data = json.loads(res.data)
-    self.assertEqual(res.status_code, 200)
-    self.assertEqual(data['success'], True)
+    self.assertEqual(res.status_code, 422)
+    self.assertEqual(data['success'], False)
   

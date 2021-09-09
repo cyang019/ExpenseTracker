@@ -146,8 +146,10 @@ def test(filenames):
   run_sql([f"CREATE DATABASE {os.getenv('APPLICATION_DB')}"])
 
   cmdline = ["coverage", "run", "--source", "application",
-  "-m", "unittest", "discover", "tests"]
+  "-m", "unittest", "discover"]
   cmdline.extend(filenames)
+  subprocess.call(cmdline)
+  cmdline = ["coverage", "report", "-m"]
   subprocess.call(cmdline)
 
   cmdline = docker_compose_cmdline("down")

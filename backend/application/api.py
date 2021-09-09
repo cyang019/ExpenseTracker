@@ -7,7 +7,7 @@ from flask_cors import CORS
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from application.models import (
   setup_db, db, migrate,
-  User, Card, Category, Transaction
+  User, Card, Category, Transaction, Currency
 )
 
 
@@ -55,7 +55,6 @@ def create_app(config_name):
       'transaction': selection.format()
     })
 
-
   @app.route('/transactions', methods=['POST'])
   def post_transaction():
     body = request.get_json()
@@ -69,6 +68,7 @@ def create_app(config_name):
       time_obj = datetime.datetime.strptime(time_str, TIME_FORMAT)
     description = body.get('description')
     receipt_no = body.get('receipt_no')
+    error = False
     try:
       if amount is None:
         raise ValueError(f'Need transaction amount in cents.')
@@ -95,7 +95,6 @@ def create_app(config_name):
       'success': True
     })
 
-
   @app.route('/transactions/<int:transaction_id>', methods=['PATCH'])
   def patch_transaction(transaction_id:int):
     body = request.get_json()
@@ -109,6 +108,7 @@ def create_app(config_name):
       time_obj = datetime.datetime.strptime(time_str, TIME_FORMAT)
     description = body.get('description')
     receipt_no = body.get('receipt_no')
+    error = False
     try:
       transaction = Transaction.query().get(transaction_id)
       if card_id is not None:
@@ -152,67 +152,234 @@ def create_app(config_name):
 
   @app.route('/cards', methods=['GET'])
   def get_cards():
-    pass
+    selection = Card.query.all()
+    cards = [s.format() for s in selection]
+    return jsonify({
+      'success': True,
+      'cards': cards
+    })
 
   @app.route('/cards/<int:card_id>', methods=['GET'])
   def get_card(card_id:int):
-    pass
+    selection = Card.query.filter(Card.id == card_id).one_or_none()
+    if selection is None:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'card': selection.format()
+    })
 
   @app.route('/cards', methods=['POST'])
   def post_card(card_id:int):
-    pass
+    body = request.get_json()
+    user_id = body.get('user_id', None)
+    card_number = body.get('number', None)
+    card_code = body.get('code', None)
+    card_processor = body.get('processor', None)
+    error = False
+    try:
+      if card_number is None:
+        raise ValueError(f'Need card number.')
+      card = Card(
+        user_id=user_id,
+        number=card_number,
+        code=card_code,
+        processor=card_processor
+      )
+      card.insert()
+    except Exception as e:
+      error = True
+      print(f'error creating new card: {e}')
+      db.session.rollback()
+    finally:
+      db.session.close()
+    if error:
+      abort(422)
+
+    return jsonify({
+      'success': True
+    })
 
   @app.route('/cards/<int:card_id>', methods=['DELETE'])
   def delete_card(card_id:int):
-    pass
+    card = Card.query.filter(card.id == card_id).one_or_none()
+    if card is None:
+      abort(404)
+
+    card.delete()
+    return jsonify({
+      'success': True,
+      'deleted': card_id
+    })
 
   @app.route('/categories', methods=['GET'])
   def get_categories():
-    pass
+    selection = Category.query.all()
+    categories = [s.format() for s in selection]
+    return jsonify({
+      'success': True,
+      'categories': categories
+    })
 
   @app.route('/categories/<int:category_id>', methods=['GET'])
   def get_category(category_id:int):
-    pass
+    selection = Category.query.filter(Category.id == category_id).one_or_none()
+    if selection is None:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'category': selection.format()
+    })
 
   @app.route('/categories', methods=['POST'])
   def post_category(category_id:int):
-    pass
+    body = request.get_json()
+    cat_name = body.get('name', None)
+    error = False
+    try:
+      if cat_name is None:
+        raise ValueError(f'Need category name.')
+      category = Category(name=cat_name)
+      category.insert()
+    except Exception as e:
+      error = True
+      print(f'error creating new category: {e}')
+      db.session.rollback()
+    finally:
+      db.session.close()
+    if error:
+      abort(422)
+
+    return jsonify({
+      'success': True
+    })
 
   @app.route('/categories/<int:category_id>', methods=['DELETE'])
   def delete_category(category_id:int):
-    pass
+    cat = Category.query.filter(Category.id == category_id).one_or_none()
+    if cat is None:
+      abort(404)
+    
+    cat.delete()
+    return jsonify({
+      'success': True,
+      'deleted': category_id
+    })
 
   @app.route('/currencies', methods=['GET'])
   def get_currencies():
-    pass
+    selection = Currency.query.all()
+    res = [s.format() for s in selection]
+    return jsonify({
+      'success': True,
+      'currencies': res
+    })
 
   @app.route('/currencies/<int:currency_id>', methods=['GET'])
   def get_currency(currency_id:int):
-    pass
+    selection = Currency.query.filter(Currency.id == currency_id).one_or_none()
+    if selection is None:
+      abort(404)
+    
+    res = selection.format()
+    return jsonify({
+      'success': True,
+      'currency': res
+    })
 
   @app.route('/currencies', methods=['POST'])
-  def post_currency(currency_id:int):
-    pass
+  def post_currency():
+    body = request.get_json()
+    name = body.get('name', None)
+    error = False
+    try:
+      if name is None:
+        raise ValueError(f'Need currency name.')
+      currency = Currency(name=name)
+      currency.insert()
+    except Exception as e:
+      error = True
+      print(f'error creating new currency: {e}')
+      db.session.rollback()
+    finally:
+      db.session.close()
+    if error:
+      abort(422)
+
+    return jsonify({
+      'success': True
+    })
 
   @app.route('/currencies/<int:currency_id>', methods=['DELETE'])
   def delete_currency(currency_id:int):
-    pass
+    ans = Currency.query.filter(Currency.id == currency_id).one_or_none()
+    if ans is None:
+      abort(404)
+    
+    ans.delete()
+    return jsonify({
+      'success': True,
+      'deleted': currency_id
+    })
 
   @app.route('/users', methods=['GET'])
   def get_users():
-    pass
+    selection = User.query.all()
+    res = [s.format() for s in selection]
+    return jsonify({
+      'success': True,
+      'users': res
+    })
 
   @app.route('/users/<int:user_id>', methods=['GET'])
   def get_user(user_id:int):
-    pass
+    selection = User.query.filter(User.id == user_id).one_or_none()
+    if selection is None:
+      abort(404)
+    
+    res = selection.format()
+    return jsonify({
+      'success': True,
+      'user': res
+    })
 
   @app.route('/users', methods=['POST'])
   def post_user(user_id:int):
-    pass
+    body = request.get_json()
+    name = body.get('name', None)
+    email = body.get('email', "")
+    error = False
+    try:
+      if name is None:
+        raise ValueError(f'Need user name.')
+      user = User(name=name, email=email)
+      user.insert()
+    except Exception as e:
+      error = True
+      print(f'error creating new user: {e}')
+      db.session.rollback()
+    finally:
+      db.session.close()
+    if error:
+      abort(422)
+
+    return jsonify({
+      'success': True
+    })
 
   @app.route('/users/<int:user_id>', methods=['DELETE'])
   def delete_user(user_id:int):
-    pass
+    ans = User.query.filter(User.id == user_id).one_or_none()
+    if ans is None:
+      abort(404)
+    
+    ans.delete()
+    return jsonify({
+      'success': True,
+      'deleted': user_id
+    })
 
   @app.errorhandler(404)
   def not_found(error):

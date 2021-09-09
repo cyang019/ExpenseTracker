@@ -33,8 +33,30 @@ class User(db.Model):
     name = Column(String)
     email = Column(String)
 
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+
     def __repr__(self):
         return f'<User {self.id} {self.name}>'
+    
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email
+        }
 
 
 class Card(db.Model):
@@ -49,6 +71,32 @@ class Card(db.Model):
     def __repr__(self):
         return f'<Card {self.id} {self.user_id} {self.processor} {self.number}>'
 
+    def __init__(self, user_id, number, code, processor):
+        self.user_id = user_id
+        self.number = number
+        self.code = str(code)
+        self.processor = str(processor).lower()
+    
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'number': self.number,
+            'code': self.code,
+            'processor': self.processor
+        }
+
 
 class Category(db.Model):
     __tablename__ = "category"
@@ -59,11 +107,51 @@ class Category(db.Model):
     def __repr__(self):
         return f'<Category {self.id} {self.name}>'
 
+    def __init__(self, name):
+        self.name = str(name)
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
+
 class Currency(db.Model):
     __tablename__ = "currency"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
+
+    def __init__(self, name):
+        self.name = str(name)
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
 
 
 class Transaction(db.Model):
