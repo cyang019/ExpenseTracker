@@ -7,13 +7,14 @@ from flask_cors import CORS
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from application.models import (
   setup_db, db, migrate,
-  User, Card, Category, Transaction, Currency
+  CardUser, Card, Category, Transaction, Currency
 )
 
 
 TIME_FORMAT = "%m/%d/%y %H:%M:%S.%f"
 
-def create_app(config_name):
+def create_app():
+  config_name = os.environ.get("FLASK_CONFIG", "development")
   app = Flask(__name__)
   config_module = f"application.config.{config_name.capitalize()}Config"
   app.config.from_object(config_module)
@@ -414,6 +415,8 @@ if __name__ == '__main__':
   #   'postgres', 'postgres',
   #   'localhost:6432', database_name)
   app = create_app('development')
+  with app.app_context():
+    db.create_all()
   # setup_db(app, database_path)
 
   # binds the app to the current context
@@ -423,4 +426,4 @@ if __name__ == '__main__':
   #   # create all tables
   #   db.create_all()
   
-  app.run(host='127.0.0.1')
+  app.run(host='0.0.0.0')

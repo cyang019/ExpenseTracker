@@ -26,8 +26,8 @@ def setup_db(app, database_path=database_path):
     db.create_all()
 
 
-class User(db.Model):
-    __tablename__ = "user"
+class CardUser(db.Model):
+    __tablename__ = "card_user"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -38,7 +38,7 @@ class User(db.Model):
         self.email = email
 
     def __repr__(self):
-        return f'<User {self.id} {self.name}>'
+        return f'<CardUser {self.id} {self.name}>'
     
     def insert(self):
         db.session.add(self)
@@ -63,7 +63,7 @@ class Card(db.Model):
     __tablename__ = "card"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = Column(Integer, db.ForeignKey('card_user.id'), nullable=False)
     number = Column(String)
     code = Column(String)
     processor = Column(String)

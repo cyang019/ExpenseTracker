@@ -5,11 +5,9 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 sys.path.insert(
   0,
-  os.path.join(
-    os.path.dirname(
-      os.path.dirname(__file__)),
-    'application'))
-from api import create_app, setup_db
+  os.path.dirname(os.path.dirname(__file__))
+  )
+from application.app import create_app, setup_db
 from models import db
 
 
