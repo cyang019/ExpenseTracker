@@ -12,6 +12,7 @@ docker==5.0.2
 docker-compose==1.29.2
 dockerpty==0.4.1
 docopt==0.6.2
+Faker==8.12.1
 Flask==2.0.1
 Flask-Cors==3.0.10
 Flask-Migrate==3.1.0

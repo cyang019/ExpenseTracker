@@ -177,6 +177,7 @@ def create_app():
     user_id = body.get('user_id', None)
     card_number = body.get('number', None)
     card_code = body.get('code', None)
+    card_expire = body.get('expire', None)
     card_processor = body.get('processor', None)
     error = False
     try:
@@ -186,6 +187,7 @@ def create_app():
         user_id=user_id,
         number=card_number,
         code=card_code,
+        expire=card_expire,
         processor=card_processor
       )
       card.insert()
@@ -327,7 +329,7 @@ def create_app():
 
   @app.route('/users', methods=['GET'])
   def get_users():
-    selection = User.query.all()
+    selection = CardUser.query.all()
     res = [s.format() for s in selection]
     return jsonify({
       'success': True,
@@ -336,7 +338,7 @@ def create_app():
 
   @app.route('/users/<int:user_id>', methods=['GET'])
   def get_user(user_id:int):
-    selection = User.query.filter(User.id == user_id).one_or_none()
+    selection = CardUser.query.filter(CardUser.id == user_id).one_or_none()
     if selection is None:
       abort(404)
     
@@ -355,7 +357,7 @@ def create_app():
     try:
       if name is None:
         raise ValueError(f'Need user name.')
-      user = User(name=name, email=email)
+      user = CardUser(name=name, email=email)
       user.insert()
     except Exception as e:
       error = True
@@ -372,7 +374,7 @@ def create_app():
 
   @app.route('/users/<int:user_id>', methods=['DELETE'])
   def delete_user(user_id:int):
-    ans = User.query.filter(User.id == user_id).one_or_none()
+    ans = CardUser.query.filter(CardUser.id == user_id).one_or_none()
     if ans is None:
       abort(404)
     

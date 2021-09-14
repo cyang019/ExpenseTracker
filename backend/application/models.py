@@ -66,15 +66,17 @@ class Card(db.Model):
     user_id = Column(Integer, db.ForeignKey('card_user.id'), nullable=False)
     number = Column(String)
     code = Column(String)
+    expire = Column(String)
     processor = Column(String)
 
     def __repr__(self):
         return f'<Card {self.id} {self.user_id} {self.processor} {self.number}>'
 
-    def __init__(self, user_id, number, code, processor):
+    def __init__(self, user_id, number, code, expire, processor):
         self.user_id = user_id
         self.number = number
         self.code = str(code)
+        self.expire = str(expire)
         self.processor = str(processor).lower()
     
     def insert(self):
@@ -94,6 +96,7 @@ class Card(db.Model):
             'user_id': self.user_id,
             'number': self.number,
             'code': self.code,
+            'expire': self.expire,
             'processor': self.processor
         }
 
@@ -187,7 +190,7 @@ class Transaction(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return f'<Transaction {self.id} {amount} {time} {receipt_no}>'
+        return f'<Transaction {self.id} {self.amount} {self.time} {self.receipt_no}>'
 
     def format(self):
         return {
