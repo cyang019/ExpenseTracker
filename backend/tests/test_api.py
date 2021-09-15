@@ -2,6 +2,7 @@ import sys
 import os
 import unittest
 import json
+import datetime
 from flask_sqlalchemy import SQLAlchemy
 sys.path.insert(
   0,
@@ -29,15 +30,22 @@ class ExpenseTrackerTestCase(unittest.TestCase):
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertEqual(data['success'], True)
+    self.assertTrue(len(data['transactions']) > 0)
 
   def test_post_transaction(self):
     res = self.client().post(
       'transactions',
       json={
-        "amount": 100
+        "card_id": 1,
+        "category_id": 2,
+        "amount": 1000,
+        "currency_id": 1,
+        "time": "1/1/21 12:00:00.0",
+        "description": "buy stuff",
+        "receipt_no": "12345"
       }
     )
     data = json.loads(res.data)
-    self.assertEqual(res.status_code, 422)
-    self.assertEqual(data['success'], False)
+    self.assertEqual(res.status_code, 200)
+    self.assertEqual(data['success'], True)
   
