@@ -103,6 +103,7 @@ def run_sql(statements):
     host=os.getenv("POSTGRES_HOSTNAME"),
     port=os.getenv("POSTGRES_PORT")
   )
+
   conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
   cursor = conn.cursor()
   for statement in statements:
@@ -144,6 +145,21 @@ def test(filenames):
   wait_for_logs(cmdline, "ready to accept connections")
 
   run_sql([f"CREATE DATABASE {os.getenv('APPLICATION_DB')}"])
+
+  # import sample data
+  sample_filename = "application_data.psql"
+  username = os.getenv('POSTGRES_USER')
+  host = os.getenv('POSTGRES_HOSTNAME')
+  db_name = os.getenv('APPLICATION_DB')
+  port = os.getenv('POSTGRES_PORT')
+  pw = os.getenv('POSTGRES_PASSWORD')
+  psql_str = f'postgresql://{username}:{pw}@{host}:{port}/{db_name}'
+  cmdline = [
+    "psql",
+    psql_str,
+    "-f", sample_filename
+  ]
+  subprocess.call(cmdline)
 
   cmdline = ["coverage", "run", "--source", "application",
   "-m", "unittest", "discover"]

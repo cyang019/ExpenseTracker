@@ -8,14 +8,14 @@ sys.path.insert(
   os.path.dirname(os.path.dirname(__file__))
   )
 from application.app import create_app, setup_db
-from models import db
+from application.models import db
 
 
 class ExpenseTrackerTestCase(unittest.TestCase):
   """Testing backend apis for expense tracker.
   """
   def setUp(self):
-    self.app = create_app("testing")
+    self.app = create_app()
     self.client = self.app.test_client
     # binds the app to the current context
     with self.app.app_context():
