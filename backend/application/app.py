@@ -334,11 +334,22 @@ def create_app():
 
   @app.route('/currencies/<int:currency_id>', methods=['DELETE'])
   def delete_currency(currency_id:int):
-    ans = Currency.query.filter(Currency.id == currency_id).one_or_none()
-    if ans is None:
-      abort(404)
-    
-    ans.delete()
+    try:
+      selection = Transaction.query.filter(Transaction.currency_id == currency_id).all()
+      if selection is not None:
+        for item in selection:
+          item.delete()
+
+      ans = Currency.query.filter(Currency.id == currency_id).one_or_none()
+      if ans is None:
+        abort(404)
+      
+      ans.delete()
+    except Exception as e:
+      error = True
+      print(f'error deleting currency {currency_id}: {e}')
+    finally:
+      db.session.close()
     return jsonify({
       'success': True,
       'deleted': currency_id

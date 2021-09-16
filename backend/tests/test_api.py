@@ -141,3 +141,32 @@ class ExpenseTrackerTestCase(unittest.TestCase):
     self.assertEqual(res.status_code, 200)
     self.assertEqual(data['success'], True)
 
+  def test_get_currencies(self):
+    res = self.client().get('/currencies')
+    data = json.loads(res.data)
+    self.assertEqual(res.status_code, 200)
+    self.assertGreater(len(data['currencies']), 0)
+
+  def test_get_currency(self):
+    res = self.client().get('/currencies/2')
+    data = json.loads(res.data)
+    self.assertEqual(res.status_code, 200)
+    self.assertTrue(data['currency']['name'])
+
+  def test_delete_currency(self):
+    res = self.client().delete('/currencies/3')
+    data = json.loads(res.data)
+    self.assertEqual(res.status_code, 200)
+    self.assertEqual(data['success'], True)
+
+  def test_post_currency(self):
+    res = self.client().post(
+      '/currencies',
+      json={
+        "name": "dummy"
+      }
+    )
+    data = json.loads(res.data)
+    self.assertEqual(res.status_code, 200)
+    self.assertEqual(data['success'], True)
+
