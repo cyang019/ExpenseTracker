@@ -111,7 +111,9 @@ def create_app():
     receipt_no = body.get('receipt_no')
     error = False
     try:
-      transaction = Transaction.query().get(transaction_id)
+      transaction = Transaction.query.get(transaction_id)
+      if transaction is None:
+        abort(404)
       if card_id is not None:
         transaction.card_id = card_id
       if category_id is not None:
@@ -172,7 +174,7 @@ def create_app():
     })
 
   @app.route('/cards', methods=['POST'])
-  def post_card(card_id:int):
+  def post_card():
     body = request.get_json()
     user_id = body.get('user_id', None)
     card_number = body.get('number', None)
@@ -206,7 +208,7 @@ def create_app():
 
   @app.route('/cards/<int:card_id>', methods=['DELETE'])
   def delete_card(card_id:int):
-    card = Card.query.filter(card.id == card_id).one_or_none()
+    card = Card.query.filter(Card.id == card_id).one_or_none()
     if card is None:
       abort(404)
 
@@ -237,7 +239,7 @@ def create_app():
     })
 
   @app.route('/categories', methods=['POST'])
-  def post_category(category_id:int):
+  def post_category():
     body = request.get_json()
     cat_name = body.get('name', None)
     error = False
@@ -261,11 +263,26 @@ def create_app():
 
   @app.route('/categories/<int:category_id>', methods=['DELETE'])
   def delete_category(category_id:int):
-    cat = Category.query.filter(Category.id == category_id).one_or_none()
-    if cat is None:
-      abort(404)
-    
-    cat.delete()
+    error = False
+    try:
+      selection = Transaction.query.filter(Transaction.category_id == category_id).all()
+      if selection is not None:
+        for item in selection:
+          item.delete()
+
+      cat = Category.query.filter(Category.id == category_id).one_or_none()
+      if cat is None:
+        abort(404)
+      
+      cat.delete()
+    except Exception as e:
+      error = True
+      print(f'error deleting category {category_id}: {e}')
+      db.session.rollback()
+    finally:
+      db.session.close()
+    if error:
+      abort(422)
     return jsonify({
       'success': True,
       'deleted': category_id

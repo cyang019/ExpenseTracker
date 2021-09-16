@@ -15,7 +15,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 def setenv(variable, default):
     os.environ[variable] = os.getenv(variable, default)
 
-setenv("APPLICATION_CONFIG", "development")
+setenv("APPLICATION_CONFIG", "testing")
 
 APPLICATION_CONFIG_PATH = "config"
 DOCKER_PATH = "docker"
