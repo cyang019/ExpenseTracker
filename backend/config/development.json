@@ -1,5 +1,9 @@
 [
   {
+    "name": "FLASK_APP",
+    "value": "application.app"
+  },
+  {
     "name": "FLASK_ENV",
     "value": "development"
   },

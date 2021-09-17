@@ -15,7 +15,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 def setenv(variable, default):
     os.environ[variable] = os.getenv(variable, default)
 
-setenv("APPLICATION_CONFIG", "development")
+setenv("APPLICATION_CONFIG", "testing")
 
 APPLICATION_CONFIG_PATH = "config"
 DOCKER_PATH = "docker"
@@ -103,6 +103,7 @@ def run_sql(statements):
     host=os.getenv("POSTGRES_HOSTNAME"),
     port=os.getenv("POSTGRES_PORT")
   )
+
   conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
   cursor = conn.cursor()
   for statement in statements:
@@ -115,7 +116,7 @@ def run_sql(statements):
 def wait_for_logs(cmdline, message):
   logs = subprocess.check_output(cmdline)
   while message not in logs.decode("utf-8"):
-    time.sleep(0.1)
+    time.sleep(1)
     logs = subprocess.check_output(cmdline)
 
 
@@ -145,9 +146,26 @@ def test(filenames):
 
   run_sql([f"CREATE DATABASE {os.getenv('APPLICATION_DB')}"])
 
+  # import sample data
+  sample_filename = "application_data.psql"
+  username = os.getenv('POSTGRES_USER')
+  host = os.getenv('POSTGRES_HOSTNAME')
+  db_name = os.getenv('APPLICATION_DB')
+  port = os.getenv('POSTGRES_PORT')
+  pw = os.getenv('POSTGRES_PASSWORD')
+  psql_str = f'postgresql://{username}:{pw}@{host}:{port}/{db_name}'
+  cmdline = [
+    "psql",
+    psql_str,
+    "-f", sample_filename
+  ]
+  subprocess.call(cmdline)
+
   cmdline = ["coverage", "run", "--source", "application",
-  "-m", "unittest", "discover", "tests"]
+  "-m", "unittest", "discover"]
   cmdline.extend(filenames)
+  subprocess.call(cmdline)
+  cmdline = ["coverage", "report", "-m"]
   subprocess.call(cmdline)
 
   cmdline = docker_compose_cmdline("down")

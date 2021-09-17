@@ -1,0 +1,487 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.3 (Debian 13.3-1.pgdg100+1)
+-- Dumped by pg_dump version 13.3
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: alembic_version; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.alembic_version (
+    version_num character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.alembic_version OWNER TO postgres;
+
+--
+-- Name: card; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.card (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    number character varying,
+    code character varying,
+    processor character varying,
+    expire character varying
+);
+
+
+ALTER TABLE public.card OWNER TO postgres;
+
+--
+-- Name: card_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.card_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.card_id_seq OWNER TO postgres;
+
+--
+-- Name: card_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.card_id_seq OWNED BY public.card.id;
+
+
+--
+-- Name: card_user; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.card_user (
+    id integer NOT NULL,
+    name character varying,
+    email character varying
+);
+
+
+ALTER TABLE public.card_user OWNER TO postgres;
+
+--
+-- Name: card_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.card_user_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.card_user_id_seq OWNER TO postgres;
+
+--
+-- Name: card_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.card_user_id_seq OWNED BY public.card_user.id;
+
+
+--
+-- Name: category; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.category (
+    id integer NOT NULL,
+    name character varying
+);
+
+
+ALTER TABLE public.category OWNER TO postgres;
+
+--
+-- Name: category_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.category_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.category_id_seq OWNER TO postgres;
+
+--
+-- Name: category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.category_id_seq OWNED BY public.category.id;
+
+
+--
+-- Name: currency; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.currency (
+    id integer NOT NULL,
+    name character varying
+);
+
+
+ALTER TABLE public.currency OWNER TO postgres;
+
+--
+-- Name: currency_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.currency_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.currency_id_seq OWNER TO postgres;
+
+--
+-- Name: currency_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.currency_id_seq OWNED BY public.currency.id;
+
+
+--
+-- Name: transaction; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.transaction (
+    id integer NOT NULL,
+    card_id integer NOT NULL,
+    category_id integer NOT NULL,
+    amount integer,
+    currency_id integer NOT NULL,
+    "time" timestamp without time zone,
+    description character varying,
+    receipt_no character varying
+);
+
+
+ALTER TABLE public.transaction OWNER TO postgres;
+
+--
+-- Name: transaction_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.transaction_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.transaction_id_seq OWNER TO postgres;
+
+--
+-- Name: transaction_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.transaction_id_seq OWNED BY public.transaction.id;
+
+
+--
+-- Name: card id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.card ALTER COLUMN id SET DEFAULT nextval('public.card_id_seq'::regclass);
+
+
+--
+-- Name: card_user id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.card_user ALTER COLUMN id SET DEFAULT nextval('public.card_user_id_seq'::regclass);
+
+
+--
+-- Name: category id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.category ALTER COLUMN id SET DEFAULT nextval('public.category_id_seq'::regclass);
+
+
+--
+-- Name: currency id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.currency ALTER COLUMN id SET DEFAULT nextval('public.currency_id_seq'::regclass);
+
+
+--
+-- Name: transaction id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transaction ALTER COLUMN id SET DEFAULT nextval('public.transaction_id_seq'::regclass);
+
+
+--
+-- Data for Name: alembic_version; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.alembic_version (version_num) FROM stdin;
+ad0a28fb4b68
+\.
+
+
+--
+-- Data for Name: card; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.card (id, user_id, number, code, processor, expire) FROM stdin;
+1	1	38450820075151	900	jcb 15 digit	01/23
+2	3	501801459865	434	american express	11/28
+3	8	4861914022612	187	american express	06/25
+4	6	4249823487693170543	8125	visa 19 digit	12/24
+5	4	3529922830376654	268	american express	09/25
+6	8	4016978389429	873	jcb 15 digit	08/31
+7	8	3594402470585849	738	visa 13 digit	10/21
+8	7	6011644052166005	286	maestro	12/25
+9	4	2236470706888853	447	diners club / carte blanche	04/30
+10	8	4248951673082254677	879	visa 16 digit	12/23
+11	4	676280687614	262	mastercard	08/31
+12	1	6515138438831854	928	maestro	03/29
+13	9	4595967225488	554	jcb 15 digit	11/29
+14	4	4701507994626828827	373	visa 19 digit	06/27
+15	5	676230177914	824	visa 13 digit	08/29
+\.
+
+
+--
+-- Data for Name: card_user; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.card_user (id, name, email) FROM stdin;
+1	Michael Wright	laurie35@fields.com
+2	Kimberly Brooks	gpoole@brown.org
+3	Deanna Robinson	melanie54@roy.com
+4	Daniel Duarte	victoriaellis@yahoo.com
+5	Olivia Perez	joshua14@yahoo.com
+6	George Porter	melissadavis@bentley-chang.com
+7	Kiara Small	wilsonjeremy@hotmail.com
+8	Dawn Davis	richardsonjose@yahoo.com
+9	James Klein	kathleen20@ewing.org
+10	Stephanie Miles	millervalerie@hotmail.com
+\.
+
+
+--
+-- Data for Name: category; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.category (id, name) FROM stdin;
+1	grocery
+2	catering
+3	home improvement
+4	entertainment
+5	utility
+6	rent
+7	mortgage
+8	education
+9	auto
+10	insurance
+\.
+
+
+--
+-- Data for Name: currency; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.currency (id, name) FROM stdin;
+1	USD
+2	EUR
+3	CHF
+4	JPY
+5	CNY
+\.
+
+
+--
+-- Data for Name: transaction; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.transaction (id, card_id, category_id, amount, currency_id, "time", description, receipt_no) FROM stdin;
+1	12	10	70196	5	2021-05-27 00:00:00	Suggest suffer once once parent.	1-208-00209-0
+2	10	1	33039	3	2020-11-27 00:00:00	About pull future on too.	0-8461-5574-5
+3	2	9	50624	4	2021-03-31 00:00:00	Likely choose at fill pattern environment.	0-7266-1883-7
+4	15	7	26027	4	2021-03-22 00:00:00	Second above west thought.	0-933770-30-8
+5	11	1	92601	4	2021-07-07 00:00:00	Time age model foreign work month.	0-296-70549-7
+6	15	8	39211	4	2021-03-20 00:00:00	Old news movie life science time.	1-5205-4532-0
+7	13	4	5491	1	2021-05-14 00:00:00	Successful want there product.	1-361-21182-2
+8	9	2	58005	3	2021-06-02 00:00:00	Than manage nor another fund manager type.	1-950578-40-2
+9	9	5	84403	3	2020-12-07 00:00:00	Like laugh successful teacher respond.	0-7680-3491-4
+10	13	8	71044	2	2021-07-12 00:00:00	Newspaper suggest wind.	0-7357-9972-5
+11	2	6	52853	4	2021-03-07 00:00:00	Director first Democrat meet card between.	1-58265-774-2
+12	11	8	85384	1	2021-07-05 00:00:00	Issue identify describe party.	1-4325-1114-9
+13	10	9	28008	1	2021-03-25 00:00:00	Church anything section call hospital.	1-7376109-6-5
+14	10	8	6288	1	2021-03-18 00:00:00	Police choose deal role another activity.	1-05-106624-7
+15	11	6	58276	2	2021-01-09 00:00:00	Safe skill once customer gun course.	0-614-49484-2
+16	14	4	44602	3	2020-10-04 00:00:00	Partner notice politics.	1-64420-366-9
+17	6	9	96247	1	2021-01-21 00:00:00	Describe amount represent example someone.	1-05-622350-2
+18	10	10	21482	2	2021-05-16 00:00:00	Foot production what meeting cost.	0-7088-3742-5
+19	14	9	36308	3	2021-06-07 00:00:00	Amount travel assume single you.	1-57334-675-6
+20	2	5	52435	2	2020-11-17 00:00:00	Allow enter worry job.	1-7375326-9-7
+21	1	4	88366	3	2020-10-18 00:00:00	White hospital fight year speech plant.	0-9810095-2-2
+22	7	4	99566	4	2020-12-09 00:00:00	Type scene number.	1-58138-342-8
+23	15	8	44402	1	2021-03-06 00:00:00	Carry leg program respond.	1-71311-536-0
+24	7	5	89969	4	2020-11-09 00:00:00	Series cultural sense lose.	1-4002-1530-7
+25	10	5	9111	5	2021-06-20 00:00:00	Bag defense factor fire.	1-62337-679-3
+26	8	7	86378	3	2020-12-19 00:00:00	Too those idea themselves.	1-315-93369-1
+27	3	3	8632	2	2021-03-28 00:00:00	Such huge very fish cost cut often.	0-7349-4598-1
+28	6	3	28877	3	2020-11-01 00:00:00	Project case southern present admit degree.	0-697-57188-2
+29	9	8	2612	2	2021-04-04 00:00:00	Chance modern book various worker gun through.	0-480-82007-4
+30	12	8	83048	5	2020-09-12 00:00:00	Prevent position career example offer.	1-72792-260-3
+\.
+
+
+--
+-- Name: card_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.card_id_seq', 15, true);
+
+
+--
+-- Name: card_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.card_user_id_seq', 10, true);
+
+
+--
+-- Name: category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.category_id_seq', 10, true);
+
+
+--
+-- Name: currency_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.currency_id_seq', 5, true);
+
+
+--
+-- Name: transaction_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.transaction_id_seq', 30, true);
+
+
+--
+-- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.alembic_version
+    ADD CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num);
+
+
+--
+-- Name: card card_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.card
+    ADD CONSTRAINT card_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: card_user card_user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.card_user
+    ADD CONSTRAINT card_user_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: category category_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.category
+    ADD CONSTRAINT category_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: currency currency_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.currency
+    ADD CONSTRAINT currency_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: transaction transaction_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transaction
+    ADD CONSTRAINT transaction_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: card card_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.card
+    ADD CONSTRAINT card_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.card_user(id);
+
+
+--
+-- Name: transaction transaction_card_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transaction
+    ADD CONSTRAINT transaction_card_id_fkey FOREIGN KEY (card_id) REFERENCES public.card(id);
+
+
+--
+-- Name: transaction transaction_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transaction
+    ADD CONSTRAINT transaction_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.category(id);
+
+
+--
+-- Name: transaction transaction_currency_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transaction
+    ADD CONSTRAINT transaction_currency_id_fkey FOREIGN KEY (currency_id) REFERENCES public.currency(id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
