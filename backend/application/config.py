@@ -15,7 +15,6 @@ class Config(object):
   SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
-
 class ProductionConfig(Config):
   """Production configuration"""
   pass
@@ -29,5 +28,3 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
   """Testing configuration"""
   TESTING = True
-
-

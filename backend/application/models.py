@@ -18,11 +18,10 @@ setup_db(app)
 '''
 
 
-def setup_db(app, database_path=database_path):
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_path
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+def setup_db(app):
     db.app = app
     db.init_app(app)
+    migrate.init_app(app, db)
     db.create_all()
 
 
@@ -39,7 +38,7 @@ class CardUser(db.Model):
 
     def __repr__(self):
         return f'<CardUser {self.id} {self.name}>'
-    
+
     def insert(self):
         db.session.add(self)
         db.session.commit()
@@ -70,7 +69,12 @@ class Card(db.Model):
     processor = Column(String)
 
     def __repr__(self):
-        return f'<Card {self.id} {self.user_id} {self.processor} {self.number}>'
+        return (
+            f'<Card {self.id} '
+            f'{self.user_id} '
+            f'{self.processor}'
+            f'{self.number}>'
+            )
 
     def __init__(self, user_id, number, code, expire, processor):
         self.user_id = user_id
@@ -78,7 +82,7 @@ class Card(db.Model):
         self.code = str(code)
         self.expire = str(expire)
         self.processor = str(processor).lower()
-    
+
     def insert(self):
         db.session.add(self)
         db.session.commit()
@@ -130,6 +134,7 @@ class Category(db.Model):
             'name': self.name
         }
 
+
 class Currency(db.Model):
     __tablename__ = "currency"
 
@@ -169,7 +174,11 @@ class Transaction(db.Model):
     description = Column(String)
     receipt_no = Column(String)
 
-    def __init__(self, card_id, category_id, amount, currency_id, time, description, receipt_no):
+    def __init__(
+        self,
+        card_id, category_id,
+        amount, currency_id, time,
+        description, receipt_no):
         self.card_id = card_id
         self.category_id = category_id
         self.amount = int(amount)   # in cents
@@ -177,7 +186,7 @@ class Transaction(db.Model):
         self.time = time
         self.description = str(description)
         self.receipt_no = str(receipt_no)
-    
+
     def insert(self):
         db.session.add(self)
         db.session.commit()
@@ -190,7 +199,9 @@ class Transaction(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return f'<Transaction {self.id} {self.amount} {self.time} {self.receipt_no}>'
+        return (
+            f'<Transaction {self.id} '
+            f'{self.amount} {self.time} {self.receipt_no}>')
 
     def format(self):
         return {
