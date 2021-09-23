@@ -15,10 +15,11 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 def setenv(variable, default):
     os.environ[variable] = os.getenv(variable, default)
 
-setenv("APPLICATION_CONFIG", "testing")
+setenv("APPLICATION_CONFIG", "development")
 
 APPLICATION_CONFIG_PATH = "config"
-DOCKER_PATH = "docker"
+DOCKER_PATH = os.path.join(
+  os.path.dirname(__file__), "docker")
 
 
 def app_config_file(config):
@@ -62,6 +63,7 @@ def flask(subcommand):
 
 def docker_compose_cmdline(commands_string=None):
   config = os.getenv("APPLICATION_CONFIG")
+  print(f'config: {config}')
   configure_app(config)
   
   compose_file = docker_compose_file(config)
