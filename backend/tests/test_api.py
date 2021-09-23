@@ -3,28 +3,37 @@ import os
 import unittest
 import json
 import datetime
+import http.client
+from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 sys.path.insert(
   0,
   os.path.dirname(os.path.dirname(__file__))
   )
-from application.app import setup_db, app
+from application.app import create_app
 from application.models import db
+dotenv_path = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path)
 
 
-# JWT_SECRET = os.getenv('JWT_SECRET')
+ACCESS_TOKEN = os.environ.get('access-token')
 
 
 class ExpenseTrackerTestCase(unittest.TestCase):
   """Testing backend apis for expense tracker.
   """
   def setUp(self):
-    self.app = app
+    self.app = create_app()
     self.client = self.app.test_client
-    self.user_token = os.getenv('TOKEN')
-    # binds the app to the current context
-    with self.app.app_context():
-      db.create_all()
+    # with self.app.app_context():
+    #   db.create_all()
+    self.user_token = ACCESS_TOKEN
+    self.token_type = "Bearer"
+    self.default_header = {
+        'Content-Type': 'application/json',
+        'Authorization': f'{self.token_type} {self.user_token}'
+      }
   
   def tearDown(self):
     pass
@@ -32,9 +41,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_transactions(self):
     res = self.client().get(
       '/transactions',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertEqual(data['success'], True)
@@ -43,9 +50,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_single_transaction(self):
     res = self.client().get(
       '/transactions/1',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertEqual(data['success'], True)
@@ -54,9 +59,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_single_transaction_error(self):
     res = self.client().get(
       'transactions/123456',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 404)
     self.assertEqual(data['success'], False)
@@ -73,9 +76,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
         "description": "buy stuff",
         "receipt_no": "12345"
       },
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      }
+      headers=dict(self.default_header)
     )
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
@@ -88,9 +89,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
         'card_id': 1,
         'category_id': 2
       },
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 422)
     self.assertEqual(data['success'], False)
@@ -107,9 +106,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
         "description": "buy stuff",
         "receipt_no": "12345"
       },
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      }
+      headers=dict(self.default_header)
     )
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
@@ -118,9 +115,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_delete_transaction(self):
     res = self.client().delete(
       '/transactions/3',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertEqual(data['deleted'], 3)
@@ -128,9 +123,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_cards(self):
     res = self.client().get(
       '/cards',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertGreater(len(data['cards']), 0)
@@ -138,9 +131,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_card(self):
     res = self.client().get(
       '/cards/1',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertTrue(data['card']['number'])
@@ -155,9 +146,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
         'expire': '12/23',
         'processor': 'mastercard'
       },
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      }
+      headers=dict(self.default_header)
     )
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
@@ -166,9 +155,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_delete_card(self):
     res = self.client().delete(
       '/cards/4',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertEqual(data['success'], True)
@@ -176,9 +163,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_categories(self):
     res = self.client().get(
       '/categories',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertGreater(len(data['categories']), 0)
@@ -186,9 +171,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_category(self):
     res = self.client().get(
       '/categories/2',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertTrue(data['category']['name'])
@@ -196,9 +179,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_delete_category(self):
     res = self.client().delete(
       '/categories/1',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertEqual(data['success'], True)
@@ -209,9 +190,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
       json={
         "name": "dummy"
       },
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      }
+      headers=dict(self.default_header)
     )
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
@@ -220,9 +199,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_currencies(self):
     res = self.client().get(
       '/currencies',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertGreater(len(data['currencies']), 0)
@@ -230,9 +207,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_currency(self):
     res = self.client().get(
       '/currencies/2',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertTrue(data['currency']['name'])
@@ -240,9 +215,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_delete_currency(self):
     res = self.client().delete(
       '/currencies/3',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertEqual(data['success'], True)
@@ -253,9 +226,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
       json={
         "name": "dummy"
       },
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      }
+      headers=dict(self.default_header)
     )
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
@@ -265,9 +236,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_users(self):
     res = self.client().get(
       '/users',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertGreater(len(data['users']), 0)
@@ -275,9 +244,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_get_user(self):
     res = self.client().get(
       '/users/2',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertTrue(data['user']['name'])
@@ -285,9 +252,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_delete_user(self):
     res = self.client().delete(
       '/users/3',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)
     self.assertEqual(data['success'], True)
@@ -295,9 +260,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
   def test_delete_user_error(self):
     res = self.client().delete(
       '/users/9999',
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      })
+      headers=dict(self.default_header))
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 404)
     self.assertEqual(data['success'], False)
@@ -309,9 +272,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
         "name": "dummy",
         "email": "123@gmail.com"
       },
-      headers={
-        'Authorization': f'Bearer {self.user_token}'
-      }
+      headers=dict(self.default_header)
     )
     data = json.loads(res.data)
     self.assertEqual(res.status_code, 200)

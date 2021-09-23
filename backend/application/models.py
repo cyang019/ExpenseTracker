@@ -6,16 +6,9 @@ from flask_migrate import Migrate
 import ast
 import json
 
-database_name = "expenses"
-database_path = "postgresql://{}/{}".format("localhost:5432", database_name)
 
 db = SQLAlchemy()
 migrate = Migrate()
-
-'''
-setup_db(app)
-    binds a flask application and a SQLAlchemy service
-'''
 
 
 def setup_db(app):
