@@ -12,8 +12,10 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from dotenv import load_dotenv
 
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-load_dotenv(dotenv_path)
+APPLICATION_CONFIG = os.getenv('APPLICATION_CONFIG')
+if APPLICATION_CONFIG != "production":
+  dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+  load_dotenv(dotenv_path)
 
 
 cur_dir = os.path.abspath(os.path.dirname(__file__))
