@@ -52,6 +52,24 @@ def configure_app(config):
     setenv(key, value)
 
 
+def run_sql(statements):
+  conn = psycopg2.connect(
+    dbname=os.getenv("POSTGRES_DB"),
+    user=os.getenv("POSTGRES_USER"),
+    password=os.getenv("POSTGRES_PASSWORD"),
+    host=os.getenv("POSTGRES_HOSTNAME"),
+    port=os.getenv("POSTGRES_PORT")
+  )
+
+  conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+  cursor = conn.cursor()
+  for statement in statements:
+      cursor.execute(statement)
+
+  cursor.close()
+  conn.close()
+
+
 @click.group()
 def cli():
   pass
@@ -76,8 +94,15 @@ def db_upgrade():
   config = os.getenv("APPLICATION_CONFIG")
 
   configure_app(os.getenv("APPLICATION_CONFIG"))
-  # cmdline = "flask db init".split()
-  # subprocess.call(cmdline)
+  try:
+    run_sql([f"CREATE DATABASE {os.getenv('APPLICATION_DB')}"])
+  except psycopg2.errors.DuplicateDatabase:
+    print(
+        f"The database {os.getenv('APPLICATION_DB')} already exists and will not be recreated"
+    )
+  if config == "production":
+    cmdline = "flask db stamp head".split()
+    subprocess.call(cmdline)
   cmdline = "flask db migrate".split(' ')
   subprocess.call(cmdline)
   cmdline = "flask db upgrade".split()
@@ -144,24 +169,6 @@ def compose(subcommand):
     except KeyboardInterrupt:
         p.send_signal(signal.SIGINT)
         p.wait()
-
-
-def run_sql(statements):
-  conn = psycopg2.connect(
-    dbname=os.getenv("POSTGRES_DB"),
-    user=os.getenv("POSTGRES_USER"),
-    password=os.getenv("POSTGRES_PASSWORD"),
-    host=os.getenv("POSTGRES_HOSTNAME"),
-    port=os.getenv("POSTGRES_PORT")
-  )
-
-  conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-  cursor = conn.cursor()
-  for statement in statements:
-      cursor.execute(statement)
-
-  cursor.close()
-  conn.close()
 
 
 def wait_for_logs(cmdline, message):
