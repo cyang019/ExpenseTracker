@@ -89,8 +89,9 @@ def run_server():
   config = os.getenv("APPLICATION_CONFIG")
 
   configure_app(os.getenv("APPLICATION_CONFIG"))
-  # cmdline = "flask db init".split()
-  # subprocess.call(cmdline)
+  if config == "production":
+    cmdline = "flask db stamp head".split()
+    subprocess.call(cmdline)
   cmdline = "flask db migrate".split(' ')
   subprocess.call(cmdline)
   cmdline = "flask db upgrade".split()
