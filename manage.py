@@ -54,6 +54,7 @@ def configure_app(config):
 
 def run_sql(statements):
   conn = psycopg2.connect(
+    database=os.getenv("APPLICATION_DB")
     user=os.getenv("POSTGRES_USER"),
     password=os.getenv("POSTGRES_PASSWORD"),
     host=os.getenv("POSTGRES_HOSTNAME"),
@@ -93,12 +94,15 @@ def db_upgrade():
   config = os.getenv("APPLICATION_CONFIG")
 
   configure_app(os.getenv("APPLICATION_CONFIG"))
-  try:
-    run_sql([f"CREATE DATABASE {os.getenv('APPLICATION_DB')}"])
-  except psycopg2.errors.DuplicateDatabase:
-    print(
-        f"The database {os.getenv('APPLICATION_DB')} already exists and will not be recreated"
-    )
+  username = os.getenv('POSTGRES_USER')
+  host = os.getenv('POSTGRES_HOSTNAME')
+  db_name = os.getenv('APPLICATION_DB')
+  port = os.getenv('POSTGRES_PORT')
+  pw = os.getenv('POSTGRES_PASSWORD')
+  psql_str = f'postgresql://{username}:{pw}@{host}:{port}/{db_name}'
+  cmdline = f'createdb -h {host} -p {port} -U {username} application'
+  subprocess.call(cmdline.split(' '))
+
   if config == "production":
     cmdline = "flask db stamp head".split()
     subprocess.call(cmdline)
