@@ -56,8 +56,6 @@ def create_app():
   #   print(f'app.config[{key}]: {app.config[key]}')
   db.init_app(app)
   migrate.init_app(app, db)
-  with app.app_context():
-    db.create_all()
 
   CORS(app, resources={r"/api/*": {"origins": "*"}})
 

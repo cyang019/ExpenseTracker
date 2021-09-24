@@ -9,13 +9,15 @@ import time
 import click
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from dotenv import load_dotenv
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(dotenv_path)
 
 
 # Ensure an environment variable exists and has a value
 def setenv(variable, default):
     os.environ[variable] = os.getenv(variable, default)
 
-setenv("APPLICATION_CONFIG", "development")
 
 APPLICATION_CONFIG_PATH = "config"
 DOCKER_PATH = os.path.join(
@@ -23,42 +25,66 @@ DOCKER_PATH = os.path.join(
 
 
 def app_config_file(config):
-    return os.path.join(APPLICATION_CONFIG_PATH, f"{config}.json")
+  return os.path.join(APPLICATION_CONFIG_PATH, f"{config}.json")
 
 
 def docker_compose_file(config):
-    return os.path.join(DOCKER_PATH, f"{config}.yml")
+  return os.path.join(DOCKER_PATH, f"{config}.yml")
 
 
 def configure_app(config):
   # Read configuration from the relative JSON file
   with open(app_config_file(config)) as f:
-      config_data = json.load(f)
+    config_data = json.load(f)
 
   # Convert the config into a usable Python dictionary
   config_data = dict((item["name"], item["value"]) for item in config_data)
 
   for key, value in config_data.items():
-      setenv(key, value)
+    setenv(key, value)
 
 
 @click.group()
 def cli():
-    pass
+  pass
 
 
 @cli.command(context_settings={"ignore_unknown_options": True})
 @click.argument("subcommand", nargs=-1, type=click.Path())
 def flask(subcommand):
-    configure_app(os.getenv("APPLICATION_CONFIG"))
-    cmdline = ["flask"] + list(subcommand)
+  configure_app(os.getenv("APPLICATION_CONFIG"))
+  cmdline = ["flask"] + list(subcommand)
 
-    try:
-        p = subprocess.Popen(cmdline)
-        p.wait()
-    except KeyboardInterrupt:
-        p.send_signal(signal.SIGINT)
-        p.wait()
+  try:
+    p = subprocess.Popen(cmdline)
+    p.wait()
+  except KeyboardInterrupt:
+    p.send_signal(signal.SIGINT)
+    p.wait()
+
+@cli.command(context_settings={"ignore_unknown_options": True})
+def run_server():
+  config = os.getenv("APPLICATION_CONFIG")
+
+  configure_app(os.getenv("APPLICATION_CONFIG"))
+  # cmdline = "flask db init".split()
+  # subprocess.call(cmdline)
+  cmdline = "flask db migrate".split(' ')
+  subprocess.call(cmdline)
+  cmdline = "flask db upgrade".split()
+  subprocess.call(cmdline)
+  if config == 'development':
+    cmdline = "flask run --host 0.0.0.0".split(' ')
+  elif config == 'production':
+    cmdline = "gunicorn -w 4 -b 0.0.0.0 wsgi:app".split(' ')
+  else:
+    raise ValueError(f'config not implemented for run command: {config}')
+  try:
+    p = subprocess.Popen(cmdline)
+    p.wait()
+  except KeyboardInterrupt:
+    p.send_signal(signal.SIGINT)
+    p.wait()
 
 
 def docker_compose_cmdline(commands_string=None):
@@ -170,7 +196,7 @@ def test(filenames):
   cmdline = ["coverage", "report", "-m"]
   subprocess.call(cmdline)
 
-  cmdline = docker_compose_cmdline("down")
+  cmdline = docker_compose_cmdline("down --volume")
   subprocess.call(cmdline)
 
 
