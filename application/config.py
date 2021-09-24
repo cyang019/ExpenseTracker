@@ -3,17 +3,15 @@ import os
 
 class Config(object):
   """Base configuration"""
-  user = os.environ["POSTGRES_USER"]
-  password = os.environ["POSTGRES_PASSWORD"]
-  hostname = os.environ["POSTGRES_HOSTNAME"]
-  port = os.environ["POSTGRES_PORT"]
-  database = os.environ["APPLICATION_DB"]
+  user = os.environ.get("POSTGRES_USER", None)
+  password = os.environ.get("POSTGRES_PASSWORD", None)
+  hostname = os.environ.get("POSTGRES_HOSTNAME", None)
+  port = os.environ.get("POSTGRES_PORT", None)
+  database = os.environ.get("APPLICATION_DB", None)
 
-  SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', None)
-  if not SQLALCHEMY_DATABASE_URI:
-    SQLALCHEMY_DATABASE_URI = (
-        f"postgresql+psycopg2://{user}:{password}@{hostname}:{port}/{database}"
-    )
+  SQLALCHEMY_DATABASE_URI = (
+      f"postgresql+psycopg2://{user}:{password}@{hostname}:{port}/{database}"
+  )
   SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
