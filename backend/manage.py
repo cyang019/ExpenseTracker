@@ -10,8 +10,13 @@ import click
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from dotenv import load_dotenv
+
+
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
+
+
+cur_dir = os.path.abspath(os.path.dirname(__file__))
 
 
 # Ensure an environment variable exists and has a value
@@ -19,8 +24,9 @@ def setenv(variable, default):
     os.environ[variable] = os.getenv(variable, default)
 
 
-APPLICATION_CONFIG_PATH = "config"
+APPLICATION_CONFIG_PATH = os.path.join(cur_dir, "config")
 DOCKER_PATH = os.path.join(
+  cur_dir,
   os.path.dirname(__file__), "docker")
 
 
