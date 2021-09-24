@@ -9,9 +9,11 @@ class Config(object):
   port = os.environ["POSTGRES_PORT"]
   database = os.environ["APPLICATION_DB"]
 
-  SQLALCHEMY_DATABASE_URI = (
-      f"postgresql+psycopg2://{user}:{password}@{hostname}:{port}/{database}"
-  )
+  SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', None)
+  if not SQLALCHEMY_DATABASE_URI:
+    SQLALCHEMY_DATABASE_URI = (
+        f"postgresql+psycopg2://{user}:{password}@{hostname}:{port}/{database}"
+    )
   SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
