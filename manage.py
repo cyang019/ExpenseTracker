@@ -54,7 +54,7 @@ def configure_app(config):
 
 def run_sql(statements):
   conn = psycopg2.connect(
-    database=os.getenv("APPLICATION_DB")
+    database=os.getenv("APPLICATION_DB"),
     user=os.getenv("POSTGRES_USER"),
     password=os.getenv("POSTGRES_PASSWORD"),
     host=os.getenv("POSTGRES_HOSTNAME"),
