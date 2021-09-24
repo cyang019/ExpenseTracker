@@ -28,6 +28,7 @@ class ExpenseTrackerTestCase(unittest.TestCase):
     self.client = self.app.test_client
     with self.app.app_context():
       db.create_all()
+
     self.user_token = ACCESS_TOKEN
     self.token_type = "Bearer"
     self.default_header = {

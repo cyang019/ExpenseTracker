@@ -1,5 +1,13 @@
 [
   {
+    "name": "AUTH0_DOMAIN",
+    "value": "cyang019.us.auth0.com"
+  },
+  {
+    "name": "API_IDENTIFIER",
+    "value": "expense_tracker"
+  },
+  {
     "name": "FLASK_APP",
     "value": "application.app"
   },
