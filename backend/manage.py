@@ -62,6 +62,20 @@ def flask(subcommand):
     p.send_signal(signal.SIGINT)
     p.wait()
 
+
+@cli.command(context_settings={"ignore_unknown_options": True})
+def db_upgrade():
+  config = os.getenv("APPLICATION_CONFIG")
+
+  configure_app(os.getenv("APPLICATION_CONFIG"))
+  # cmdline = "flask db init".split()
+  # subprocess.call(cmdline)
+  cmdline = "flask db migrate".split(' ')
+  subprocess.call(cmdline)
+  cmdline = "flask db upgrade".split()
+  subprocess.call(cmdline)
+
+
 @cli.command(context_settings={"ignore_unknown_options": True})
 def run_server():
   config = os.getenv("APPLICATION_CONFIG")
