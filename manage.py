@@ -54,7 +54,7 @@ def configure_app(config):
 
 def run_sql(statements):
   conn = psycopg2.connect(
-    database=os.getenv("APPLICATION_DB"),
+    database=os.getenv("POSTGRES_DB"),
     user=os.getenv("POSTGRES_USER"),
     password=os.getenv("POSTGRES_PASSWORD"),
     host=os.getenv("POSTGRES_HOSTNAME"),
@@ -100,7 +100,7 @@ def db_upgrade():
   port = os.getenv('POSTGRES_PORT')
   pw = os.getenv('POSTGRES_PASSWORD')
   psql_str = f'postgresql://{username}:{pw}@{host}:{port}/{db_name}'
-  cmdline = f'createdb -h {host} -p {port} -U {username} application'
+  cmdline = f'createdb -h {host} -p {port} -U {username} {db_name}'
   subprocess.call(cmdline.split(' '))
 
   if config == "production":
