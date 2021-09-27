@@ -113,8 +113,8 @@ def create_app():
     time_obj = None
     if time_str is not None:
       time_obj = datetime.datetime.strptime(time_str, TIME_FORMAT)
-    description = body.get('description')
-    receipt_no = body.get('receipt_no')
+    description = body.get('description', '')
+    receipt_no = body.get('receipt_no', '')
     error = False
     try:
       if amount is None:
@@ -154,8 +154,8 @@ def create_app():
     time_obj = None
     if time_str is not None:
       time_obj = datetime.datetime.strptime(time_str, TIME_FORMAT)
-    description = body.get('description')
-    receipt_no = body.get('receipt_no')
+    description = body.get('description', '')
+    receipt_no = body.get('receipt_no', '')
     error = False
     try:
       transaction = Transaction.query.get(transaction_id)

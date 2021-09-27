@@ -120,11 +120,28 @@ def run_server():
   if config == "production":
     cmdline = "flask db stamp head".split()
     subprocess.call(cmdline)
-  cmdline = "flask db migrate".split(' ')
-  subprocess.call(cmdline)
-  cmdline = "flask db upgrade".split()
-  subprocess.call(cmdline)
-  if config == 'development':
+    cmdline = "flask db migrate".split(' ')
+    subprocess.call(cmdline)
+    cmdline = "flask db upgrade".split()
+    subprocess.call(cmdline)
+
+  if config in ['development', 'testing']:
+    run_sql([f"CREATE DATABASE {os.getenv('APPLICATION_DB')}"])
+
+    # import sample data
+    sample_filename = "application_data.psql"
+    username = os.getenv('POSTGRES_USER')
+    host = os.getenv('POSTGRES_HOSTNAME')
+    db_name = os.getenv('APPLICATION_DB')
+    port = os.getenv('POSTGRES_PORT')
+    pw = os.getenv('POSTGRES_PASSWORD')
+    psql_str = f'postgresql://{username}:{pw}@{host}:{port}/{db_name}'
+    cmdline = [
+      "psql",
+      psql_str,
+      "-f", sample_filename
+    ]
+    subprocess.call(cmdline)
     cmdline = "flask run --host 0.0.0.0".split(' ')
   elif config == 'production':
     cmdline = "gunicorn -w 4 -b 0.0.0.0 wsgi:app".split(' ')
